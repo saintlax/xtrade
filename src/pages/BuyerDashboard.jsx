@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../layouts/Layout';
 import { useAuth } from '../context/AuthContext';
+import MeetingModal from '../components/MeetingModal';
 import { 
   Package, Search, Calendar, Video, Clock, 
   ShoppingCart, Heart, History, Bell, ShieldCheck, MapPin, Edit, X, ArrowRight
@@ -13,13 +14,21 @@ const BuyerDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showRegisterItem, setShowRegisterItem] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [meetings, setMeetings] = useState([
     { id: 'm1', itemName: 'iPhone 13 Pro', seller: 'Tech Hub', time: '2026-03-20T10:00:00Z', status: 'scheduled', zoomLink: '/meeting/m1' },
     { id: 'm2', itemName: 'Sony WH-1000XM4', seller: 'Gadget World', time: '2026-03-21T14:30:00Z', status: 'missed', zoomLink: '/meeting/m2' }
   ]);
 
-  const handleEditMeeting = (id) => {
-    alert(`Editing meeting ${id}. You can reschedule or cancel.`);
+  const handleEditMeeting = (meeting) => {
+    setSelectedMeeting(meeting);
+    setShowRescheduleModal(true);
+  };
+
+  const handleRescheduleSubmit = (updatedMeeting) => {
+    setMeetings(prev => prev.map(m => m.id === updatedMeeting.id ? { ...m, ...updatedMeeting } : m));
+    alert("Meeting rescheduled successfully!");
   };
 
   const handleJoinMeeting = (link) => {
@@ -143,7 +152,7 @@ const BuyerDashboard = () => {
                                    Join Call
                                 </button>
                                 <button 
-                                   onClick={() => handleEditMeeting(meeting.id)}
+                                   onClick={() => handleEditMeeting(meeting)}
                                    className="p-3 bg-white border text-gray-400 rounded-xl hover:text-blue-600 hover:border-blue-100 transition-colors"
                                 >
                                    <Edit className="w-5 h-5" />
@@ -183,7 +192,7 @@ const BuyerDashboard = () => {
                                </div>
                             </div>
                             <button 
-                               onClick={() => handleEditMeeting(meeting.id)}
+                               onClick={() => handleEditMeeting(meeting)}
                                className="px-6 py-3 bg-white border text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm"
                             >
                                {meeting.status === 'missed' ? 'Reschedule' : 'Edit Meeting'}
@@ -196,6 +205,14 @@ const BuyerDashboard = () => {
            </div>
         </div>
       </div>
+
+      <MeetingModal 
+        isOpen={showRescheduleModal}
+        onClose={() => setShowRescheduleModal(false)}
+        onSubmit={handleRescheduleSubmit}
+        meeting={selectedMeeting}
+        mode="edit"
+      />
 
       {/* Register Item Intent Modal */}
       <AnimatePresence>

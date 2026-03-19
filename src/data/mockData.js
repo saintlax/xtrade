@@ -3,34 +3,34 @@ export const ITEMS = [
     id: '1',
     name: 'iPhone 13 Pro',
     description: 'Slightly used iPhone 13 Pro, 256GB, Graphite. No scratches.',
-    price: 850,
+    price: 450000,
     sellerId: 'vendor1',
     category: 'Electronics',
     images: ['https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500'],
     status: 'available',
-    pickupAddress: '123 Tech Avenue, Silicon Valley',
+    pickupAddress: '123 Tech Avenue, Lagos',
   },
   {
     id: '2',
     name: 'MacBook Air M2',
     description: 'Brand new MacBook Air M2, 16GB RAM, 512GB SSD.',
-    price: 1200,
+    price: 1200000,
     sellerId: 'temp_seller1',
     category: 'Electronics',
     images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500'],
     status: 'available',
-    pickupAddress: '456 Apple Street, Cupertino',
+    pickupAddress: '456 Apple Street, Abuja',
   },
   {
     id: '3',
     name: 'Sony WH-1000XM4',
     description: 'Noise cancelling headphones, black. Excellent condition.',
-    price: 250,
+    price: 250000,
     sellerId: 'vendor2',
     category: 'Audio',
     images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'],
     status: 'available',
-    pickupAddress: '789 Sound Road, Austin',
+    pickupAddress: '789 Sound Road, Port Harcourt',
   }
 ];
 
@@ -150,7 +150,7 @@ export const MEETINGS = [
 ];
 
 export const SUBSCRIPTION_PACKAGES = [
-  { id: 'daily', name: 'Daily', price: 1, duration: '1 day' },
-  { id: 'weekly', name: 'Weekly', price: 5, duration: '7 days' },
-  { id: 'monthly', name: 'Monthly', price: 15, duration: '30 days' },
+  { id: 'daily', name: 'Daily', price: 200, duration: '1 day', ussd: '*123*1#' },
+  { id: 'weekly', name: 'Weekly', price: 1000, duration: '7 days', ussd: '*123*2#' },
+  { id: 'monthly', name: 'Monthly', price: 3500, duration: '30 days', ussd: '*123*3#' },
 ];

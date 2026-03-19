@@ -4,9 +4,10 @@ import { Layout } from '../layouts/Layout';
 import ItemForm from '../components/ItemForm';
  import BuyerSearch from '../components/BuyerSearch';
  import { useAuth } from '../context/AuthContext';
+ import MeetingModal from '../components/MeetingModal';
  import { 
    Package, Plus, Search, Calendar, Video, Clock, 
-   ShieldCheck, UserCheck, TrendingUp, Settings, LogOut, LayoutDashboard, Users, ArrowRight 
+   ShieldCheck, UserCheck, TrendingUp, Settings, LogOut, LayoutDashboard, Users, ArrowRight, Edit 
  } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MEETINGS } from '../data/mockData';
@@ -16,9 +17,22 @@ const VendorDashboard = () => {
   const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
+  const [localMeetings, setLocalMeetings] = useState(MEETINGS);
   
   // Filter meetings for this vendor
-  const vendorMeetings = MEETINGS.filter(m => m.sellerId === user.id);
+  const vendorMeetings = localMeetings.filter(m => m.sellerId === user.id);
+
+  const handleEditMeeting = (meeting) => {
+    setSelectedMeeting(meeting);
+    setShowRescheduleModal(true);
+  };
+
+  const handleRescheduleSubmit = (updatedMeeting) => {
+    setLocalMeetings(prev => prev.map(m => m.id === updatedMeeting.id ? { ...m, ...updatedMeeting } : m));
+    alert("Meeting rescheduled successfully!");
+  };
   const [listings, setListings] = useState([
     { id: '1', name: 'iPhone 13 Pro', price: 850, status: 'available', description: '256GB Graphite' },
     { id: '2', name: 'MacBook Air M2', price: 1200, status: 'available', description: '16GB RAM, 512GB SSD' }
@@ -125,7 +139,7 @@ const VendorDashboard = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                        <div className="bg-white p-8 rounded-3xl border shadow-sm">
                           <TrendingUp className="w-8 h-8 text-blue-600 mb-4" />
-                          <div className="text-3xl font-extrabold">$2,450</div>
+                          <div className="text-3xl font-extrabold">₦2.4M</div>
                           <div className="text-gray-500 font-medium">Monthly Revenue</div>
                        </div>
                        <div className="bg-white p-8 rounded-3xl border shadow-sm">
@@ -151,7 +165,7 @@ const VendorDashboard = () => {
                                <div className="flex-grow">
                                   <h3 className="text-lg font-bold">{item.name}</h3>
                                   <div className="flex items-center gap-4">
-                                     <span className="text-blue-600 font-bold">${item.price}</span>
+                                     <span className="text-blue-600 font-bold">₦{Number(item.price).toLocaleString()}</span>
                                      <span className="text-gray-400 text-sm">{item.description}</span>
                                   </div>
                                </div>
@@ -188,7 +202,7 @@ const VendorDashboard = () => {
                                  <h3 className="text-xl font-bold">{item.name}</h3>
                                  <p className="text-gray-500 mb-2">{item.description}</p>
                                  <div className="flex items-center gap-4">
-                                    <span className="text-blue-600 font-bold text-lg">${item.price}</span>
+                                    <span className="text-blue-600 font-bold text-lg">₦{Number(item.price).toLocaleString()}</span>
                                     <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full uppercase tracking-wider">
                                        {item.status}
                                     </span>
@@ -223,25 +237,33 @@ const VendorDashboard = () => {
                                     {new Date(meeting.time).toLocaleString()}
                                   </div>
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                                    meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                                  }`}>
-                                    {meeting.status}
-                                  </span>
-                                </div>
-                              </div>
-                              <button 
-                                onClick={() => navigate(meeting.zoomLink)}
-                                className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
-                              >
-                                Join Meeting
-                                <ArrowRight className="w-4 h-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                   </section>
-                )}
+                                     meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                   }`}>
+                                     {meeting.status}
+                                   </span>
+                                 </div>
+                               </div>
+                               <div className="flex gap-2">
+                                 <button 
+                                   onClick={() => handleEditMeeting(meeting)}
+                                   className="p-3 bg-white border text-gray-400 rounded-xl hover:text-blue-600 hover:border-blue-100 transition-colors"
+                                 >
+                                   <Edit className="w-5 h-5" />
+                                 </button>
+                                 <button 
+                                   onClick={() => navigate(meeting.zoomLink)}
+                                   className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
+                                 >
+                                   Join Meeting
+                                   <ArrowRight className="w-4 h-4" />
+                                 </button>
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                       )}
+                    </section>
+                 )}
 
                 {activeTab === 'search-buyers' && (
                    <motion.div 
@@ -255,6 +277,14 @@ const VendorDashboard = () => {
           </div>
         )}
       </div>
+
+      <MeetingModal 
+        isOpen={showRescheduleModal}
+        onClose={() => setShowRescheduleModal(false)}
+        onSubmit={handleRescheduleSubmit}
+        meeting={selectedMeeting}
+        mode="edit"
+      />
     </Layout>
   );
 };

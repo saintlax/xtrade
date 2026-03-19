@@ -4,7 +4,8 @@ import { Layout } from '../layouts/Layout';
 import ItemForm from '../components/ItemForm';
  import BuyerSearch from '../components/BuyerSearch';
  import { useAuth } from '../context/AuthContext';
- import { Package, Plus, Search, Calendar, Video, Clock, Users, ArrowRight } from 'lucide-react';
+ import MeetingModal from '../components/MeetingModal';
+ import { Package, Plus, Search, Calendar, Video, Clock, Users, ArrowRight, Edit } from 'lucide-react';
  import { motion } from 'framer-motion';
  import { MEETINGS } from '../data/mockData';
  
@@ -13,10 +14,23 @@ import ItemForm from '../components/ItemForm';
    const navigate = useNavigate();
    const [showAddForm, setShowAddForm] = useState(false);
    const [showBuyerSearch, setShowBuyerSearch] = useState(false);
+   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+   const [selectedMeeting, setSelectedMeeting] = useState(null);
+   const [localMeetings, setLocalMeetings] = useState(MEETINGS);
    const [listings, setListings] = useState([]);
 
    // Filter meetings for this seller
-   const sellerMeetings = MEETINGS.filter(m => m.sellerId === user.id);
+   const sellerMeetings = localMeetings.filter(m => m.sellerId === user.id);
+
+  const handleEditMeeting = (meeting) => {
+    setSelectedMeeting(meeting);
+    setShowRescheduleModal(true);
+  };
+
+  const handleRescheduleSubmit = (updatedMeeting) => {
+    setLocalMeetings(prev => prev.map(m => m.id === updatedMeeting.id ? { ...m, ...updatedMeeting } : m));
+    alert("Meeting rescheduled successfully!");
+  };
 
   const handleAddListing = (data) => {
     setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'pending' }]);
@@ -104,7 +118,7 @@ import ItemForm from '../components/ItemForm';
                           <h3 className="text-xl font-bold">{item.name}</h3>
                           <p className="text-gray-500 text-sm line-clamp-1">{item.description}</p>
                           <div className="flex items-center gap-4 mt-2">
-                            <span className="text-blue-600 font-bold">${item.price}</span>
+                            <span className="text-blue-600 font-bold">₦{Number(item.price).toLocaleString()}</span>
                             <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full uppercase tracking-wider">
                               {item.status}
                             </span>
@@ -146,27 +160,35 @@ import ItemForm from '../components/ItemForm';
                               {new Date(meeting.time).toLocaleString()}
                             </div>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                              meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                            }`}>
-                              {meeting.status}
-                            </span>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => navigate(meeting.zoomLink)}
-                          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
-                        >
-                          Join Meeting
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </div>
+                               meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                             }`}>
+                               {meeting.status}
+                             </span>
+                           </div>
+                         </div>
+                         <div className="flex gap-2">
+                           <button 
+                             onClick={() => handleEditMeeting(meeting)}
+                             className="p-3 bg-white border text-gray-400 rounded-xl hover:text-blue-600 hover:border-blue-100 transition-colors"
+                           >
+                             <Edit className="w-5 h-5" />
+                           </button>
+                           <button 
+                             onClick={() => navigate(meeting.zoomLink)}
+                             className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
+                           >
+                             Join Meeting
+                             <ArrowRight className="w-4 h-4" />
+                           </button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 )}
+               </section>
+             </div>
 
-            <aside className="space-y-8">
+             <aside className="space-y-8">
                <div className="bg-blue-600 rounded-3xl p-8 text-white shadow-xl shadow-blue-200">
                   <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
                      <Video className="w-6 h-6" />
@@ -196,6 +218,14 @@ import ItemForm from '../components/ItemForm';
           </div>
         )}
       </div>
+
+      <MeetingModal 
+        isOpen={showRescheduleModal}
+        onClose={() => setShowRescheduleModal(false)}
+        onSubmit={handleRescheduleSubmit}
+        meeting={selectedMeeting}
+        mode="edit"
+      />
     </Layout>
   );
 };

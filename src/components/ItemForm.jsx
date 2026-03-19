@@ -51,8 +51,8 @@ const ItemForm = ({ onSubmit, isTemp = false }) => {
             <h3 className="text-3xl font-bold text-gray-900">{formData.name || 'Item Name'}</h3>
             <p className="text-gray-600">{formData.description || 'Item description will appear here...'}</p>
             <div className="flex items-center gap-2 text-2xl font-bold text-blue-600">
-              <DollarSign className="w-6 h-6" />
-              {formData.price || '0.00'}
+              <span className="font-black">₦</span>
+              {Number(formData.price).toLocaleString() || '0.00'}
             </div>
             <div className="space-y-2 pt-4 border-t">
               <div className="flex items-center gap-2 text-gray-600">
@@ -113,7 +113,7 @@ const ItemForm = ({ onSubmit, isTemp = false }) => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Cost Price ($)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">Cost Price (₦)</label>
               <input
                 type="number"
                 name="price"

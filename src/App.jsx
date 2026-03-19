@@ -11,10 +11,9 @@ import ItemsPage from './pages/ItemsPage';
  import MeetingRoom from './pages/MeetingRoom';
  import Checkout from './pages/Checkout';
  import AdminDashboard from './pages/AdminDashboard';
+ import RegisterVendor from './pages/RegisterVendor';
 
-// Placeholder pages
-const RegisterVendor = () => <Layout><div className="max-w-7xl mx-auto py-12 px-4 text-center text-2xl font-bold">Vendor Registration (Coming Soon)</div></Layout>;
-
+// Private route wrapper for role-based access
 const PrivateRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
   

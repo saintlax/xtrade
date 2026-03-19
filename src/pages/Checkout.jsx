@@ -22,7 +22,7 @@ const Checkout = () => {
     setIsCalculating(true);
     // Simulate API call to logistics firm
     setTimeout(() => {
-      setDeliveryFee(25.50);
+      setDeliveryFee(15000);
       setIsCalculating(false);
       setStep('payment');
     }, 1500);
@@ -194,17 +194,17 @@ const Checkout = () => {
                    <div className="space-y-4">
                       <div className="flex justify-between text-gray-600">
                          <span>{item.name}</span>
-                         <span className="font-bold">${item.price}</span>
+                         <span className="font-bold">₦{Number(item.price).toLocaleString()}</span>
                       </div>
                       {deliveryFee && (
                          <div className="flex justify-between text-gray-600">
                             <span>Delivery Fee</span>
-                            <span className="font-bold">${deliveryFee}</span>
+                            <span className="font-bold">₦{Number(deliveryFee).toLocaleString()}</span>
                          </div>
                       )}
                       <div className="border-t pt-4 flex justify-between text-xl font-black text-blue-600">
                          <span>Total</span>
-                         <span>${(item.price + (deliveryFee || 0)).toFixed(2)}</span>
+                         <span>₦{(Number(item.price) + Number(deliveryFee || 0)).toLocaleString()}</span>
                       </div>
                    </div>
                 </div>

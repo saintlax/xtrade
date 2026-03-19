@@ -73,7 +73,7 @@ const ItemsPage = () => {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{item.name}</h3>
-                    <span className="text-2xl font-black text-blue-600">${item.price}</span>
+                    <span className="text-2xl font-black text-blue-600">₦{item.price.toLocaleString()}</span>
                   </div>
                   <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">{item.description}</p>
                   

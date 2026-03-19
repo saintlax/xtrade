@@ -94,7 +94,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="bg-white p-8 rounded-3xl border shadow-sm">
                   <CreditCard className="w-8 h-8 text-blue-600 mb-4" />
-                  <div className="text-3xl font-extrabold">${ESCROW_TRANSACTIONS.reduce((acc, curr) => acc + curr.amount, 0)}</div>
+                  <div className="text-3xl font-extrabold">₦{ESCROW_TRANSACTIONS.reduce((acc, curr) => acc + curr.amount, 0).toLocaleString()}</div>
                   <div className="text-gray-500 font-medium">In Escrow</div>
                 </div>
               </div>
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
                               </div>
                               <div>
                                  <h3 className="text-lg font-bold">{listing.name}</h3>
-                                 <p className="text-blue-600 font-bold">${listing.price}</p>
+                                 <p className="text-blue-600 font-bold">₦{Number(listing.price).toLocaleString()}</p>
                               </div>
                            </div>
                            <div className="bg-blue-600/10 text-blue-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
@@ -206,12 +206,12 @@ const AdminDashboard = () => {
                      {ESCROW_TRANSACTIONS.map(tx => (
                         <div key={tx.id} className="p-6 border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="flex items-center gap-6">
-                              <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center border border-green-100">
-                                 <DollarSign className="w-6 h-6" />
+                              <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center border border-green-100 font-black text-xl">
+                                 ₦
                               </div>
                               <div>
                                  <div className="font-bold">Order #{tx.id}</div>
-                                 <div className="text-sm text-gray-500">Amount: <span className="font-bold text-gray-900">${tx.amount + tx.deliveryFee}</span></div>
+                                 <div className="text-sm text-gray-500">Amount: <span className="font-bold text-gray-900">₦{(tx.amount + tx.deliveryFee).toLocaleString()}</span></div>
                               </div>
                            </div>
                            <div className="flex items-center gap-6">

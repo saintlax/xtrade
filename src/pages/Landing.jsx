@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Truck, Users, Calendar, Video, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SUBSCRIPTION_PACKAGES } from '../data/mockData';
+import USSDDialog from '../components/USSDDialog';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
@@ -15,6 +16,14 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 );
 
 const Landing = () => {
+  const [selectedPkg, setSelectedPkg] = useState(null);
+  const [isUSSDOpen, setIsUSSDOpen] = useState(false);
+
+  const handleSubscribe = (pkg) => {
+    setSelectedPkg(pkg);
+    setIsUSSDOpen(true);
+  };
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -123,7 +132,7 @@ const Landing = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-4">{pkg.name}</h3>
                 <div className="mb-6">
-                  <span className="text-4xl font-extrabold">${pkg.price}</span>
+                  <span className="text-4xl font-extrabold">₦{pkg.price.toLocaleString()}</span>
                   <span className="text-gray-500 ml-2">/ {pkg.duration}</span>
                 </div>
                 <ul className="space-y-4 mb-8 text-gray-600">
@@ -137,7 +146,10 @@ const Landing = () => {
                     <ShieldCheck className="w-5 h-5 text-green-500" /> Buyer Protection
                   </li>
                 </ul>
-                <button className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors">
+                <button 
+                  onClick={() => handleSubscribe(pkg)}
+                  className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors"
+                >
                   Subscribe via SMS
                 </button>
               </div>
@@ -145,6 +157,16 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {isUSSDOpen && (
+          <USSDDialog 
+            isOpen={isUSSDOpen} 
+            onClose={() => setIsUSSDOpen(false)} 
+            pkg={selectedPkg} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

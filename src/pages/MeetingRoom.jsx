@@ -15,9 +15,9 @@ const MeetingRoom = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(true);
-  const [price, setPrice] = useState(850);
+  const [price, setPrice] = useState(450000);
   const [isEditingPrice, setIsEditingPrice] = useState(false);
-  const [newPrice, setNewPrice] = useState(850);
+  const [newPrice, setNewPrice] = useState(450000);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -113,11 +113,11 @@ const MeetingRoom = () => {
            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
                  <div className="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center">
-                    <DollarSign className="w-8 h-8 text-blue-500" />
+                    <span className="text-3xl font-black text-blue-500">₦</span>
                  </div>
                  <div>
                     <div className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Agreed Price</div>
-                    <div className="text-4xl font-black text-white">${price}</div>
+                    <div className="text-4xl font-black text-white">₦{price.toLocaleString()}</div>
                  </div>
               </div>
               
