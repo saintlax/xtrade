@@ -6,7 +6,11 @@ export const ITEMS = [
     price: 450000,
     sellerId: 'vendor1',
     category: 'Electronics',
-    images: ['https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500'],
+    images: [
+      'https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500',
+      'https://images.unsplash.com/photo-1510557880182-3d4d3cba3f9e?w=500',
+      'https://images.unsplash.com/photo-1512052112357-31f744c599bb?w=500'
+    ],
     status: 'available',
     pickupAddress: '123 Tech Avenue, Lagos',
   },
@@ -17,7 +21,11 @@ export const ITEMS = [
     price: 1200000,
     sellerId: 'temp_seller1',
     category: 'Electronics',
-    images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500'],
+    images: [
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500',
+      'https://images.unsplash.com/photo-1611186871348-b1ec696e5237?w=500',
+      'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500'
+    ],
     status: 'available',
     pickupAddress: '456 Apple Street, Abuja',
   },
@@ -28,11 +36,56 @@ export const ITEMS = [
     price: 250000,
     sellerId: 'vendor2',
     category: 'Audio',
-    images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'],
+    images: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500',
+      'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500'
+    ],
     status: 'available',
     pickupAddress: '789 Sound Road, Port Harcourt',
-  }
-];
+  },
+  {
+    id: '4',
+    name: 'Samsung Galaxy S23 Ultra',
+    description: 'Premium flagship phone with 200MP camera and S Pen.',
+    price: 850000,
+    sellerId: 'vendor1',
+    category: 'Electronics',
+    images: [
+      'https://images.unsplash.com/photo-1678911820864-e2c567c655d7?w=500',
+      'https://images.unsplash.com/photo-1678911820844-0390e52df665?w=500'
+    ],
+    status: 'available',
+     pickupAddress: 'Victoria Island, Lagos',
+   },
+   {
+     id: '5',
+     name: 'Dell XPS 15',
+     description: 'Powerful laptop for creators. i9, 32GB RAM, 1TB SSD, 4K Touch.',
+     price: 1850000,
+     sellerId: 'vendor2',
+     category: 'Electronics',
+     images: [
+       'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=500',
+       'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500'
+     ],
+     status: 'available',
+     pickupAddress: 'Garki, Abuja',
+   },
+   {
+     id: '6',
+     name: 'Canon EOS R5',
+     description: 'Professional mirrorless camera. 45MP, 8K Video, Body only.',
+     price: 3200000,
+     sellerId: 'vendor1',
+     category: 'Electronics',
+     images: [
+       'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500',
+       'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500'
+     ],
+     status: 'available',
+     pickupAddress: 'Lekki Phase 1, Lagos',
+   }
+ ];
 
 export const VENDORS = [
   {
