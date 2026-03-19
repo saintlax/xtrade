@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../layouts/Layout';
 import ItemForm from '../components/ItemForm';
-import { useAuth } from '../context/AuthContext';
-import { Package, Plus, Search, Calendar, Video, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
+ import BuyerSearch from '../components/BuyerSearch';
+ import { useAuth } from '../context/AuthContext';
+ import { Package, Plus, Search, Calendar, Video, Clock, Users, ArrowRight } from 'lucide-react';
+ import { motion } from 'framer-motion';
+ import { MEETINGS } from '../data/mockData';
+ 
+ const SellerDashboard = () => {
+   const { user } = useAuth();
+   const navigate = useNavigate();
+   const [showAddForm, setShowAddForm] = useState(false);
+   const [showBuyerSearch, setShowBuyerSearch] = useState(false);
+   const [listings, setListings] = useState([]);
 
-const SellerDashboard = () => {
-  const { user } = useAuth();
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [listings, setListings] = useState([]);
+   // Filter meetings for this seller
+   const sellerMeetings = MEETINGS.filter(m => m.sellerId === user.id);
 
   const handleAddListing = (data) => {
     setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'pending' }]);
@@ -20,32 +28,50 @@ const SellerDashboard = () => {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
-            <h1 className="text-4xl font-extrabold text-gray-900">Seller Dashboard</h1>
-            <p className="text-gray-500 mt-2 text-lg">Manage your temporary listings and meeting requests.</p>
-          </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
-          >
-            {showAddForm ? 'Back to Listings' : (
-              <>
-                <Plus className="w-5 h-5" />
-                Sell Particular Item
-              </>
-            )}
-          </button>
-        </header>
-
-        {showAddForm ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl shadow-sm border p-8"
-          >
-            <h2 className="text-2xl font-bold mb-8">Create New Listing</h2>
-            <ItemForm onSubmit={handleAddListing} isTemp={true} />
-          </motion.div>
-        ) : (
+             <h1 className="text-4xl font-extrabold text-gray-900">Seller Dashboard</h1>
+             <p className="text-gray-500 mt-2 text-lg">Manage your temporary listings and meeting requests.</p>
+           </div>
+           <div className="flex gap-4">
+             <button
+               onClick={() => { setShowBuyerSearch(!showBuyerSearch); setShowAddForm(false); }}
+               className={`px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200 ${
+                 showBuyerSearch ? 'bg-gray-900 text-white' : 'bg-white text-gray-900 border'
+               }`}
+             >
+               <Users className="w-5 h-5" />
+               {showBuyerSearch ? 'Back to Dashboard' : 'Search Interested Buyers'}
+             </button>
+             <button
+               onClick={() => { setShowAddForm(!showAddForm); setShowBuyerSearch(false); }}
+               className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+             >
+               {showAddForm ? 'Back to Dashboard' : (
+                 <>
+                   <Plus className="w-5 h-5" />
+                   Sell Particular Item
+                 </>
+               )}
+             </button>
+           </div>
+         </header>
+ 
+         {showAddForm ? (
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="bg-white rounded-3xl shadow-sm border p-8"
+           >
+             <h2 className="text-2xl font-bold mb-8">Create New Listing</h2>
+             <ItemForm onSubmit={handleAddListing} isTemp={true} />
+           </motion.div>
+         ) : showBuyerSearch ? (
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+           >
+             <BuyerSearch />
+           </motion.div>
+         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <section className="bg-white rounded-3xl shadow-sm border p-8">
@@ -100,9 +126,43 @@ const SellerDashboard = () => {
                   <Calendar className="w-6 h-6 text-blue-600" />
                   Meeting Requests
                 </h2>
-                <div className="text-center py-12 text-gray-500 italic">
-                  No pending meeting requests from buyers.
-                </div>
+                {sellerMeetings.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500 italic">
+                    No pending meeting requests from buyers.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {sellerMeetings.map(meeting => (
+                      <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
+                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm">
+                          <Video className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-bold">{meeting.itemName}</h3>
+                          <p className="text-gray-500">Buyer: <span className="font-bold">{meeting.buyerName}</span></p>
+                          <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              {new Date(meeting.time).toLocaleString()}
+                            </div>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                              meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {meeting.status}
+                            </span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => navigate(meeting.zoomLink)}
+                          className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
+                        >
+                          Join Meeting
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </section>
             </div>
 

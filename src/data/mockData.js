@@ -101,15 +101,50 @@ export const BUYERS = [
   }
 ];
 
+export const BUYER_INTENTS = [
+  {
+    id: 'intent1',
+    buyerId: 'buyer1',
+    buyerName: 'John Doe',
+    itemName: 'iPhone 13 Pro',
+    category: 'Electronics',
+    timestamp: '2026-03-18T14:20:00Z',
+    status: 'active',
+  },
+  {
+    id: 'intent2',
+    buyerId: 'buyer1',
+    buyerName: 'John Doe',
+    itemName: 'Mechanical Keyboard',
+    category: 'Electronics',
+    timestamp: '2026-03-19T09:15:00Z',
+    status: 'active',
+  }
+];
+
 export const MEETINGS = [
   {
     id: 'm1',
     itemId: '1',
     sellerId: 'vendor1',
     buyerId: 'buyer1',
+    buyerName: 'John Doe',
+    itemName: 'iPhone 13 Pro',
     status: 'scheduled',
     time: '2026-03-20T10:00:00Z',
-    zoomLink: 'https://zoom.us/j/123456789',
+    zoomLink: '/meeting/m1',
+    duration: 30,
+  },
+  {
+    id: 'm2',
+    itemId: '2',
+    sellerId: 'temp_seller1',
+    buyerId: 'buyer1',
+    buyerName: 'John Doe',
+    itemName: 'MacBook Air M2',
+    status: 'pending',
+    time: '2026-03-21T15:00:00Z',
+    zoomLink: '/meeting/m2',
     duration: 30,
   }
 ];

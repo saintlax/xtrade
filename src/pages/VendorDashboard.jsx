@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../layouts/Layout';
 import ItemForm from '../components/ItemForm';
-import { useAuth } from '../context/AuthContext';
-import { 
-  Package, Plus, Search, Calendar, Video, Clock, 
-  ShieldCheck, UserCheck, TrendingUp, Settings, LogOut, LayoutDashboard 
-} from 'lucide-react';
+ import BuyerSearch from '../components/BuyerSearch';
+ import { useAuth } from '../context/AuthContext';
+ import { 
+   Package, Plus, Search, Calendar, Video, Clock, 
+   ShieldCheck, UserCheck, TrendingUp, Settings, LogOut, LayoutDashboard, Users, ArrowRight 
+ } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MEETINGS } from '../data/mockData';
 
 const VendorDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Filter meetings for this vendor
+  const vendorMeetings = MEETINGS.filter(m => m.sellerId === user.id);
   const [listings, setListings] = useState([
     { id: '1', name: 'iPhone 13 Pro', price: 850, status: 'available', description: '256GB Graphite' },
     { id: '2', name: 'MacBook Air M2', price: 1200, status: 'available', description: '16GB RAM, 512GB SSD' }
@@ -91,6 +98,15 @@ const VendorDashboard = () => {
                 >
                    <Calendar className="w-5 h-5" />
                    Meetings
+                </button>
+                <button 
+                   onClick={() => setActiveTab('search-buyers')}
+                   className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
+                      activeTab === 'search-buyers' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
+                   }`}
+                >
+                   <Users className="w-5 h-5" />
+                   Search Buyers
                 </button>
                 <button 
                    onClick={() => setActiveTab('settings')}
@@ -182,6 +198,58 @@ const VendorDashboard = () => {
                          ))}
                       </div>
                    </section>
+                )}
+
+                {activeTab === 'meetings' && (
+                   <section className="bg-white rounded-3xl shadow-sm border p-8">
+                      <h2 className="text-2xl font-bold mb-8">Meeting Requests</h2>
+                      {vendorMeetings.length === 0 ? (
+                        <div className="text-center py-12 text-gray-500 italic">
+                          No pending meeting requests from buyers.
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {vendorMeetings.map(meeting => (
+                            <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
+                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm">
+                                <Video className="w-6 h-6 text-blue-600" />
+                              </div>
+                              <div className="flex-grow">
+                                <h3 className="text-lg font-bold">{meeting.itemName}</h3>
+                                <p className="text-gray-500">Buyer: <span className="font-bold">{meeting.buyerName}</span></p>
+                                <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-4 h-4" />
+                                    {new Date(meeting.time).toLocaleString()}
+                                  </div>
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                                    meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                  }`}>
+                                    {meeting.status}
+                                  </span>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => navigate(meeting.zoomLink)}
+                                className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all text-sm shadow-lg shadow-blue-100 flex items-center gap-2"
+                              >
+                                Join Meeting
+                                <ArrowRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                   </section>
+                )}
+
+                {activeTab === 'search-buyers' && (
+                   <motion.div 
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                   >
+                      <BuyerSearch />
+                   </motion.div>
                 )}
              </div>
           </div>

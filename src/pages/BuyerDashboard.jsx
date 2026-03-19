@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../layouts/Layout';
 import { useAuth } from '../context/AuthContext';
 import { 
   Package, Search, Calendar, Video, Clock, 
-  ShoppingCart, Heart, History, Bell, ShieldCheck, MapPin, Edit, X
+  ShoppingCart, Heart, History, Bell, ShieldCheck, MapPin, Edit, X, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const BuyerDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [showRegisterItem, setShowRegisterItem] = useState(false);
   const [meetings, setMeetings] = useState([
-    { id: 'm1', itemName: 'iPhone 13 Pro', seller: 'Tech Hub', time: '2026-03-20T10:00:00Z', status: 'scheduled', zoomLink: '#' },
-    { id: 'm2', itemName: 'Sony WH-1000XM4', seller: 'Gadget World', time: '2026-03-21T14:30:00Z', status: 'missed', zoomLink: '#' }
+    { id: 'm1', itemName: 'iPhone 13 Pro', seller: 'Tech Hub', time: '2026-03-20T10:00:00Z', status: 'scheduled', zoomLink: '/meeting/m1' },
+    { id: 'm2', itemName: 'Sony WH-1000XM4', seller: 'Gadget World', time: '2026-03-21T14:30:00Z', status: 'missed', zoomLink: '/meeting/m2' }
   ]);
 
   const handleEditMeeting = (id) => {
@@ -21,7 +23,7 @@ const BuyerDashboard = () => {
   };
 
   const handleJoinMeeting = (link) => {
-     window.open(link, '_blank');
+     navigate(link);
   };
 
   return (
