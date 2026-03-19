@@ -2,15 +2,27 @@ import React, { useState } from 'react';
 import { Search, Users, Calendar, Video, Clock, Filter, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BUYER_INTENTS } from '../data/mockData';
+import Pagination from './Pagination';
 
 const BuyerSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sentRequests, setSentRequests] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   const filteredIntents = BUYER_INTENTS.filter(intent => 
     intent.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     intent.buyerName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalItems = filteredIntents.length;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentIntents = filteredIntents.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const handleRequestMeeting = (intentId) => {
     setSentRequests(prev => [...prev, intentId]);
@@ -37,7 +49,7 @@ const BuyerSearch = () => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredIntents.map((intent, index) => (
+        {currentIntents.map((intent, index) => (
           <motion.div 
             key={intent.id}
             initial={{ opacity: 0, y: 10 }}
@@ -96,6 +108,13 @@ const BuyerSearch = () => {
           </motion.div>
         ))}
       </div>
+
+      <Pagination 
+        currentPage={currentPage}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+      />
 
       {filteredIntents.length === 0 && (
         <div className="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">

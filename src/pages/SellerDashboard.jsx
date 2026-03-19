@@ -8,6 +8,7 @@ import ItemForm from '../components/ItemForm';
  import { Package, Plus, Search, Calendar, Video, Clock, Users, ArrowRight, Edit } from 'lucide-react';
  import { motion } from 'framer-motion';
  import { MEETINGS } from '../data/mockData';
+ import Pagination from '../components/Pagination';
  
  const SellerDashboard = () => {
    const { user } = useAuth();
@@ -19,9 +20,20 @@ import ItemForm from '../components/ItemForm';
    const [localMeetings, setLocalMeetings] = useState(MEETINGS);
    const [listings, setListings] = useState([]);
    const [editingItem, setEditingItem] = useState(null);
+   const [currentPage, setCurrentPage] = useState(1);
+   const itemsPerPage = 5;
 
    // Filter meetings for this seller
    const sellerMeetings = localMeetings.filter(m => m.sellerId === user.id);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentListings = listings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentMeetings = sellerMeetings.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   const handleEditMeeting = (meeting) => {
     setSelectedMeeting(meeting);
@@ -119,9 +131,9 @@ import ItemForm from '../components/ItemForm';
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {listings.map(item => (
-                      <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors group">
+                   <div className="space-y-4">
+                     {currentListings.map(item => (
+                       <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors group">
                         <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
                           {item.images && item.images.length > 0 ? (
                             <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
@@ -154,6 +166,12 @@ import ItemForm from '../components/ItemForm';
                     ))}
                   </div>
                 )}
+                <Pagination 
+                  currentPage={currentPage}
+                  totalItems={listings.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                />
               </section>
 
               <section className="bg-white rounded-3xl shadow-sm border p-8">
@@ -166,9 +184,9 @@ import ItemForm from '../components/ItemForm';
                     No pending meeting requests from buyers.
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {sellerMeetings.map(meeting => (
-                      <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
+                   <div className="space-y-4">
+                     {currentMeetings.map(meeting => (
+                       <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
                         <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm">
                           <Video className="w-6 h-6 text-blue-600" />
                         </div>
@@ -202,11 +220,17 @@ import ItemForm from '../components/ItemForm';
                              <ArrowRight className="w-4 h-4" />
                            </button>
                          </div>
-                       </div>
-                     ))}
-                   </div>
-                 )}
-               </section>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Pagination 
+                  currentPage={currentPage}
+                  totalItems={sellerMeetings.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                />
+              </section>
              </div>
 
              <aside className="space-y-8">

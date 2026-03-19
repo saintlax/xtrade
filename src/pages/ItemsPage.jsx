@@ -3,6 +3,7 @@ import { Layout } from '../layouts/Layout';
 import { ITEMS } from '../data/mockData';
 import { Search, Filter, MapPin, DollarSign, Calendar, Info, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Pagination from '../components/Pagination';
 
 const ProductCard = ({ item, index }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -104,12 +105,24 @@ const ProductCard = ({ item, index }) => {
 const ItemsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   const filteredItems = ITEMS.filter(item => 
     (item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
      item.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
     (selectedCategory === 'All' || item.category === selectedCategory)
   );
+
+  const totalItems = filteredItems.length;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <Layout>
@@ -149,10 +162,17 @@ const ItemsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredItems.map((item, index) => (
+            {currentItems.map((item, index) => (
               <ProductCard key={item.id} item={item} index={index} />
             ))}
           </div>
+
+          <Pagination 
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
 
           {filteredItems.length === 0 && (
             <div className="text-center py-20">

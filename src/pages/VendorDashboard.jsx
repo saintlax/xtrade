@@ -11,6 +11,7 @@ import ItemForm from '../components/ItemForm';
  } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MEETINGS } from '../data/mockData';
+import Pagination from '../components/Pagination';
 
 const VendorDashboard = () => {
   const { user, logout } = useAuth();
@@ -21,13 +22,33 @@ const VendorDashboard = () => {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [localMeetings, setLocalMeetings] = useState(MEETINGS);
   const [editingItem, setEditingItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const [listings, setListings] = useState([
     { id: '1', name: 'iPhone 13 Pro', price: 450000, status: 'available', description: '256GB Graphite', images: ['https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500'] },
-    { id: '2', name: 'MacBook Air M2', price: 1200000, status: 'available', description: '16GB RAM, 512GB SSD', images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500'] }
+    { id: '2', name: 'MacBook Air M2', price: 1200000, status: 'available', description: '16GB RAM, 512GB SSD', images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500'] },
+    { id: '3', name: 'Sony WH-1000XM4', price: 250000, status: 'available', description: 'Noise cancelling headphones', images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500'] },
+    { id: '4', name: 'Samsung Galaxy S23', price: 850000, status: 'available', description: 'Premium flagship phone', images: ['https://images.unsplash.com/photo-1678911820864-e2c567c655d7?w=500'] },
+    { id: '5', name: 'Dell XPS 15', price: 1850000, status: 'available', description: 'Powerful laptop for creators', images: ['https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=500'] },
+    { id: '6', name: 'Canon EOS R5', price: 3200000, status: 'available', description: 'Professional mirrorless camera', images: ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500'] }
   ]);
   
   // Filter meetings for this vendor
-  const vendorMeetings = localMeetings.filter(m => m.sellerId === user.id);
+   const vendorMeetings = localMeetings.filter(m => m.sellerId === user.id);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMeetings = vendorMeetings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentListings = listings.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
 
   const handleEditMeeting = (meeting) => {
     setSelectedMeeting(meeting);
@@ -98,7 +119,7 @@ const VendorDashboard = () => {
           <div className="grid lg:grid-cols-4 gap-8">
              <nav className="lg:col-span-1 space-y-2">
                 <button 
-                   onClick={() => setActiveTab('dashboard')}
+                   onClick={() => handleTabChange('dashboard')}
                    className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                       activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                    }`}
@@ -107,7 +128,7 @@ const VendorDashboard = () => {
                    Dashboard
                 </button>
                 <button 
-                   onClick={() => setActiveTab('inventory')}
+                   onClick={() => handleTabChange('inventory')}
                    className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                       activeTab === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                    }`}
@@ -116,7 +137,7 @@ const VendorDashboard = () => {
                    Inventory
                 </button>
                 <button 
-                   onClick={() => setActiveTab('meetings')}
+                   onClick={() => handleTabChange('meetings')}
                    className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                       activeTab === 'meetings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                    }`}
@@ -125,7 +146,7 @@ const VendorDashboard = () => {
                    Meetings
                 </button>
                 <button 
-                   onClick={() => setActiveTab('search-buyers')}
+                   onClick={() => handleTabChange('search-buyers')}
                    className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                       activeTab === 'search-buyers' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                    }`}
@@ -134,7 +155,7 @@ const VendorDashboard = () => {
                    Search Buyers
                 </button>
                 <button 
-                   onClick={() => setActiveTab('settings')}
+                   onClick={() => handleTabChange('settings')}
                    className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                       activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                    }`}
@@ -168,7 +189,7 @@ const VendorDashboard = () => {
                     <section className="bg-white rounded-3xl shadow-sm border p-8">
                        <h2 className="text-2xl font-bold mb-8">Recent Inventory</h2>
                        <div className="space-y-4">
-                          {listings.map(item => (
+                          {currentListings.map(item => (
                             <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors">
                                <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
                                   {item.images && item.images.length > 0 ? (
@@ -193,6 +214,12 @@ const VendorDashboard = () => {
                             </div>
                           ))}
                        </div>
+                       <Pagination 
+                         currentPage={currentPage}
+                         totalItems={listings.length}
+                         itemsPerPage={itemsPerPage}
+                         onPageChange={handlePageChange}
+                       />
                     </section>
                   </>
                 )}
@@ -211,7 +238,7 @@ const VendorDashboard = () => {
                          </div>
                       </div>
                       <div className="space-y-4">
-                         {listings.map(item => (
+                         {currentListings.map(item => (
                            <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors">
                               <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
                                  {item.images && item.images.length > 0 ? (
@@ -239,6 +266,12 @@ const VendorDashboard = () => {
                            </div>
                          ))}
                       </div>
+                      <Pagination 
+                        currentPage={currentPage}
+                        totalItems={listings.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={handlePageChange}
+                      />
                    </section>
                 )}
 
@@ -251,7 +284,7 @@ const VendorDashboard = () => {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {vendorMeetings.map(meeting => (
+                          {currentMeetings.map(meeting => (
                             <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
                               <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm">
                                 <Video className="w-6 h-6 text-blue-600" />
@@ -290,6 +323,12 @@ const VendorDashboard = () => {
                            ))}
                          </div>
                        )}
+                       <Pagination 
+                         currentPage={currentPage}
+                         totalItems={vendorMeetings.length}
+                         itemsPerPage={itemsPerPage}
+                         onPageChange={handlePageChange}
+                       />
                     </section>
                  )}
 

@@ -8,6 +8,8 @@ import {
   ShoppingCart, Heart, History, Bell, ShieldCheck, MapPin, Edit, X, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MEETINGS, ITEMS } from '../data/mockData';
+import Pagination from '../components/Pagination';
 
 const BuyerDashboard = () => {
   const { user } = useAuth();
@@ -16,10 +18,22 @@ const BuyerDashboard = () => {
   const [showRegisterItem, setShowRegisterItem] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
-  const [meetings, setMeetings] = useState([
-    { id: 'm1', itemName: 'iPhone 13 Pro', seller: 'Tech Hub', time: '2026-03-20T10:00:00Z', status: 'scheduled', zoomLink: '/meeting/m1' },
-    { id: 'm2', itemName: 'Sony WH-1000XM4', seller: 'Gadget World', time: '2026-03-21T14:30:00Z', status: 'missed', zoomLink: '/meeting/m2' }
-  ]);
+  const [meetings, setMeetings] = useState(MEETINGS);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+
+  // Get watchlist items and orders from user object (or default to empty)
+  const watchlistItems = ITEMS.filter(item => (user.watchlist || []).includes(item.id));
+  const orderHistory = user.orders || [];
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1); // Reset page on tab change
+  };
 
   const handleEditMeeting = (meeting) => {
     setSelectedMeeting(meeting);
@@ -65,7 +79,7 @@ const BuyerDashboard = () => {
         <div className="grid lg:grid-cols-4 gap-8">
            <nav className="lg:col-span-1 space-y-2">
               <button 
-                 onClick={() => setActiveTab('overview')}
+                 onClick={() => handleTabChange('overview')}
                  className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                     activeTab === 'overview' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                  }`}
@@ -74,7 +88,7 @@ const BuyerDashboard = () => {
                  Overview
               </button>
               <button 
-                 onClick={() => setActiveTab('meetings')}
+                 onClick={() => handleTabChange('meetings')}
                  className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                     activeTab === 'meetings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                  }`}
@@ -83,7 +97,7 @@ const BuyerDashboard = () => {
                  Meetings
               </button>
               <button 
-                 onClick={() => setActiveTab('watchlist')}
+                 onClick={() => handleTabChange('watchlist')}
                  className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                     activeTab === 'watchlist' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                  }`}
@@ -92,7 +106,7 @@ const BuyerDashboard = () => {
                  Watchlist
               </button>
               <button 
-                 onClick={() => setActiveTab('history')}
+                 onClick={() => handleTabChange('history')}
                  className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                     activeTab === 'history' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
                  }`}
@@ -108,7 +122,9 @@ const BuyerDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                      <div className="bg-white p-8 rounded-3xl border shadow-sm group hover:border-blue-500 transition-colors">
                         <Calendar className="w-8 h-8 text-blue-600 mb-4" />
-                        <div className="text-3xl font-extrabold">2</div>
+                        <div className="text-3xl font-extrabold">
+                          {meetings.filter(m => m.status === 'scheduled').length}
+                        </div>
                         <div className="text-gray-500 font-medium">Upcoming Meetings</div>
                      </div>
                      <div className="bg-white p-8 rounded-3xl border shadow-sm group hover:border-blue-500 transition-colors">
@@ -126,17 +142,24 @@ const BuyerDashboard = () => {
                   <section className="bg-white rounded-3xl shadow-sm border p-8">
                      <div className="flex items-center justify-between mb-8">
                         <h2 className="text-2xl font-bold">Upcoming Meetings</h2>
-                        <button className="text-blue-600 font-bold hover:underline">View All</button>
+                        <button 
+                          onClick={() => handleTabChange('meetings')}
+                          className="text-blue-600 font-bold hover:underline"
+                        >
+                          View All
+                        </button>
                      </div>
                      <div className="space-y-4">
-                        {meetings.filter(m => m.status === 'scheduled').map(meeting => (
+                        {meetings.filter(m => m.status === 'scheduled')
+                          .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                          .map(meeting => (
                           <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl bg-gray-50/50">
                              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center border shadow-sm">
                                 <Video className="w-6 h-6 text-blue-600" />
                              </div>
                              <div className="flex-grow">
                                 <h3 className="text-lg font-bold">{meeting.itemName}</h3>
-                                <p className="text-gray-500">Seller: <span className="font-bold">{meeting.seller}</span></p>
+                                <p className="text-gray-500">Seller: <span className="font-bold">{meeting.sellerName || 'Tech Hub'}</span></p>
                                 <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
                                    <div className="flex items-center gap-1">
                                       <Clock className="w-4 h-4" />
@@ -161,6 +184,14 @@ const BuyerDashboard = () => {
                           </div>
                         ))}
                      </div>
+                     <div className="mt-8">
+                        <Pagination 
+                           currentPage={currentPage}
+                           totalItems={meetings.filter(m => m.status === 'scheduled').length}
+                           itemsPerPage={itemsPerPage}
+                           onPageChange={handlePageChange}
+                        />
+                     </div>
                   </section>
                 </>
               )}
@@ -169,8 +200,10 @@ const BuyerDashboard = () => {
                  <section className="bg-white rounded-3xl shadow-sm border p-8">
                     <h2 className="text-2xl font-bold mb-8">Meeting History & Schedule</h2>
                     <div className="space-y-4">
-                       {meetings.map(meeting => (
-                         <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl">
+                       {meetings
+                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .map(meeting => (
+                         <div key={meeting.id} className="flex flex-col md:flex-row md:items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm ${
                                meeting.status === 'missed' ? 'bg-red-50' : 'bg-white'
                             }`}>
@@ -178,14 +211,15 @@ const BuyerDashboard = () => {
                             </div>
                             <div className="flex-grow">
                                <h3 className="text-lg font-bold">{meeting.itemName}</h3>
-                               <p className="text-gray-500">Seller: {meeting.seller}</p>
+                               <p className="text-gray-500">Seller: {meeting.sellerName || 'Tech Hub'}</p>
                                <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
                                   <div className="flex items-center gap-1">
                                      <Clock className="w-4 h-4" />
                                      {new Date(meeting.time).toLocaleString()}
                                   </div>
                                   <span className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
-                                     meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                     meeting.status === 'scheduled' ? 'bg-green-100 text-green-700' : 
+                                     meeting.status === 'missed' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
                                   }`}>
                                      {meeting.status}
                                   </span>
@@ -199,6 +233,99 @@ const BuyerDashboard = () => {
                             </button>
                          </div>
                        ))}
+                    </div>
+                    <div className="mt-8">
+                       <Pagination 
+                          currentPage={currentPage}
+                          totalItems={meetings.length}
+                          itemsPerPage={itemsPerPage}
+                          onPageChange={handlePageChange}
+                       />
+                    </div>
+                 </section>
+              )}
+
+              {activeTab === 'watchlist' && (
+                 <section className="bg-white rounded-3xl shadow-sm border p-8">
+                    <h2 className="text-2xl font-bold mb-8">Your Watchlist</h2>
+                    {watchlistItems.length === 0 ? (
+                       <div className="text-center py-12 text-gray-500 italic">Your watchlist is empty.</div>
+                    ) : (
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {watchlistItems
+                             .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                             .map(item => (
+                             <div key={item.id} className="p-4 border rounded-2xl flex gap-4 group hover:border-blue-500 transition-all">
+                                <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                                   <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                </div>
+                                <div className="flex-grow min-w-0">
+                                   <h3 className="font-bold text-gray-900 truncate">{item.name}</h3>
+                                   <p className="text-blue-600 font-bold">₦{item.price.toLocaleString()}</p>
+                                   <button 
+                                      onClick={() => navigate(`/items`)}
+                                      className="mt-2 text-xs font-bold text-gray-400 hover:text-blue-600 flex items-center gap-1"
+                                   >
+                                      View Item <ArrowRight className="w-3 h-3" />
+                                   </button>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    )}
+                    <div className="mt-8">
+                       <Pagination 
+                          currentPage={currentPage}
+                          totalItems={watchlistItems.length}
+                          itemsPerPage={itemsPerPage}
+                          onPageChange={handlePageChange}
+                       />
+                    </div>
+                 </section>
+              )}
+
+              {activeTab === 'history' && (
+                 <section className="bg-white rounded-3xl shadow-sm border p-8">
+                    <h2 className="text-2xl font-bold mb-8">Order History</h2>
+                    {orderHistory.length === 0 ? (
+                       <div className="text-center py-12 text-gray-500 italic">No orders found.</div>
+                    ) : (
+                       <div className="space-y-4">
+                          {orderHistory
+                             .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                             .map(order => (
+                             <div key={order.id} className="p-6 border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-blue-500 transition-all">
+                                <div>
+                                   <div className="flex items-center gap-2 mb-1">
+                                      <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{order.id}</span>
+                                      <span className="text-gray-300">•</span>
+                                      <span className="text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</span>
+                                   </div>
+                                   <h3 className="text-lg font-bold text-gray-900">{order.itemName}</h3>
+                                   <p className="text-gray-600 font-medium">₦{order.price.toLocaleString()}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                      order.status === 'delivered' ? 'bg-green-100 text-green-700' : 
+                                      order.status === 'shipped' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+                                   }`}>
+                                      {order.status}
+                                   </span>
+                                   <button className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                                      <Package className="w-5 h-5" />
+                                   </button>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    )}
+                    <div className="mt-8">
+                       <Pagination 
+                          currentPage={currentPage}
+                          totalItems={orderHistory.length}
+                          itemsPerPage={itemsPerPage}
+                          onPageChange={handlePageChange}
+                       />
                     </div>
                  </section>
               )}

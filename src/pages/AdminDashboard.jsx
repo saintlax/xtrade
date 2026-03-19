@@ -4,19 +4,38 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Users, ShieldCheck, Package, DollarSign, 
   CheckCircle2, XCircle, Eye, Search, Filter, 
-  UserPlus, CreditCard, LayoutDashboard, Settings
+  UserPlus, CreditCard, LayoutDashboard, Settings, MapPin
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { VENDORS, ESCROW_TRANSACTIONS, ITEMS } from '../data/mockData';
+import Pagination from '../components/Pagination';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [showVendorModal, setShowVendorModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Filter items that belong to temporary sellers (id starting with 'temp_')
   const walkInListings = ITEMS.filter(item => item.sellerId.startsWith('temp_'));
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  
+  const currentVendors = VENDORS.slice(indexOfFirstItem, indexOfLastItem);
+  const currentWalkIns = walkInListings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentEscrows = ESCROW_TRANSACTIONS.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
 
   return (
     <Layout>
@@ -41,7 +60,7 @@ const AdminDashboard = () => {
           {/* Admin Sidebar */}
           <nav className="lg:col-span-1 space-y-2">
             <button 
-              onClick={() => setActiveTab('overview')}
+              onClick={() => handleTabChange('overview')}
               className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                 activeTab === 'overview' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
               }`}
@@ -50,7 +69,7 @@ const AdminDashboard = () => {
               Overview
             </button>
             <button 
-              onClick={() => setActiveTab('vendors')}
+              onClick={() => handleTabChange('vendors')}
               className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                 activeTab === 'vendors' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
               }`}
@@ -59,7 +78,7 @@ const AdminDashboard = () => {
               Registered Vendors
             </button>
             <button 
-              onClick={() => setActiveTab('walk-ins')}
+              onClick={() => handleTabChange('walk-ins')}
               className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                 activeTab === 'walk-ins' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
               }`}
@@ -68,7 +87,7 @@ const AdminDashboard = () => {
               Walk-in Listings
             </button>
             <button 
-              onClick={() => setActiveTab('escrow')}
+              onClick={() => handleTabChange('escrow')}
               className={`w-full flex items-center gap-3 px-6 py-4 rounded-2xl font-bold transition-all ${
                 activeTab === 'escrow' ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'text-gray-600 hover:bg-gray-100'
               }`}
@@ -120,7 +139,7 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      {VENDORS.map(vendor => (
+                      {currentVendors.map(vendor => (
                         <tr key={vendor.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-8 py-6">
                             <div className="font-bold text-gray-900">{vendor.businessName}</div>
@@ -147,6 +166,14 @@ const AdminDashboard = () => {
                     </tbody>
                   </table>
                 </div>
+                <div className="p-4 border-t">
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalItems={VENDORS.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                  />
+                </div>
               </section>
             )}
 
@@ -157,7 +184,7 @@ const AdminDashboard = () => {
                    <p className="text-gray-500">Review temporary listings and sensitive seller details.</p>
                 </div>
                 <div className="space-y-6">
-                   {walkInListings.map(listing => (
+                   {currentWalkIns.map(listing => (
                      <div key={listing.id} className="p-6 border rounded-2xl bg-gray-50/50 space-y-6">
                         <div className="flex justify-between items-start">
                            <div className="flex items-center gap-4">
@@ -196,6 +223,12 @@ const AdminDashboard = () => {
                      </div>
                    ))}
                 </div>
+                <Pagination 
+                  currentPage={currentPage}
+                  totalItems={walkInListings.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={handlePageChange}
+                />
               </section>
             )}
 
@@ -203,7 +236,7 @@ const AdminDashboard = () => {
                <section className="bg-white rounded-3xl shadow-sm border p-8">
                   <h2 className="text-2xl font-bold mb-8">Escrow Monitoring</h2>
                   <div className="space-y-4">
-                     {ESCROW_TRANSACTIONS.map(tx => (
+                     {currentEscrows.map(tx => (
                         <div key={tx.id} className="p-6 border rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="flex items-center gap-6">
                               <div className="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center border border-green-100 font-black text-xl">
@@ -226,6 +259,12 @@ const AdminDashboard = () => {
                         </div>
                      ))}
                   </div>
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalItems={ESCROW_TRANSACTIONS.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={handlePageChange}
+                  />
                </section>
             )}
           </div>
