@@ -20,6 +20,11 @@ const VendorDashboard = () => {
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [localMeetings, setLocalMeetings] = useState(MEETINGS);
+  const [editingItem, setEditingItem] = useState(null);
+  const [listings, setListings] = useState([
+    { id: '1', name: 'iPhone 13 Pro', price: 450000, status: 'available', description: '256GB Graphite', images: ['https://images.unsplash.com/photo-1632661674596-df8be070a5c5?w=500'] },
+    { id: '2', name: 'MacBook Air M2', price: 1200000, status: 'available', description: '16GB RAM, 512GB SSD', images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500'] }
+  ]);
   
   // Filter meetings for this vendor
   const vendorMeetings = localMeetings.filter(m => m.sellerId === user.id);
@@ -33,14 +38,20 @@ const VendorDashboard = () => {
     setLocalMeetings(prev => prev.map(m => m.id === updatedMeeting.id ? { ...m, ...updatedMeeting } : m));
     alert("Meeting rescheduled successfully!");
   };
-  const [listings, setListings] = useState([
-    { id: '1', name: 'iPhone 13 Pro', price: 850, status: 'available', description: '256GB Graphite' },
-    { id: '2', name: 'MacBook Air M2', price: 1200, status: 'available', description: '16GB RAM, 512GB SSD' }
-  ]);
 
   const handleAddListing = (data) => {
-    setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'available' }]);
+    if (editingItem) {
+      setListings(prev => prev.map(item => item.id === editingItem.id ? { ...data, id: editingItem.id } : item));
+      setEditingItem(null);
+    } else {
+      setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'available' }]);
+    }
     setShowAddForm(false);
+  };
+
+  const handleEditItem = (item) => {
+    setEditingItem(item);
+    setShowAddForm(true);
   };
 
   return (
@@ -62,7 +73,7 @@ const VendorDashboard = () => {
              </div>
           </div>
           <button
-            onClick={() => setShowAddForm(!showAddForm)}
+            onClick={() => { setShowAddForm(!showAddForm); setEditingItem(null); }}
             className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
           >
             {showAddForm ? 'Back to Dashboard' : (
@@ -75,14 +86,14 @@ const VendorDashboard = () => {
         </header>
 
         {showAddForm ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-3xl shadow-sm border p-8"
-          >
-            <h2 className="text-2xl font-bold mb-8">Add New Inventory</h2>
-            <ItemForm onSubmit={handleAddListing} isTemp={false} />
-          </motion.div>
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="bg-white rounded-3xl shadow-sm border p-8"
+           >
+             <h2 className="text-2xl font-bold mb-8">{editingItem ? 'Edit Inventory' : 'Add New Inventory'}</h2>
+             <ItemForm onSubmit={handleAddListing} initialData={editingItem} isTemp={false} />
+           </motion.div>
         ) : (
           <div className="grid lg:grid-cols-4 gap-8">
              <nav className="lg:col-span-1 space-y-2">
@@ -159,8 +170,12 @@ const VendorDashboard = () => {
                        <div className="space-y-4">
                           {listings.map(item => (
                             <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors">
-                               <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
-                                  <Package className="w-6 h-6 text-gray-400" />
+                               <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                                  {item.images && item.images.length > 0 ? (
+                                    <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Package className="w-6 h-6 text-gray-400" />
+                                  )}
                                </div>
                                <div className="flex-grow">
                                   <h3 className="text-lg font-bold">{item.name}</h3>
@@ -169,7 +184,10 @@ const VendorDashboard = () => {
                                      <span className="text-gray-400 text-sm">{item.description}</span>
                                   </div>
                                </div>
-                               <button className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-blue-600 transition-colors">
+                               <button 
+                                 onClick={() => handleEditItem(item)}
+                                 className="px-4 py-2 text-sm font-bold text-gray-600 hover:text-blue-600 transition-colors"
+                               >
                                   Edit
                                </button>
                             </div>
@@ -195,8 +213,12 @@ const VendorDashboard = () => {
                       <div className="space-y-4">
                          {listings.map(item => (
                            <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors">
-                              <div className="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center">
-                                 <Package className="w-8 h-8 text-gray-400" />
+                              <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                                 {item.images && item.images.length > 0 ? (
+                                   <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                                 ) : (
+                                   <Package className="w-8 h-8 text-gray-400" />
+                                 )}
                               </div>
                               <div className="flex-grow">
                                  <h3 className="text-xl font-bold">{item.name}</h3>
@@ -208,6 +230,12 @@ const VendorDashboard = () => {
                                     </span>
                                  </div>
                               </div>
+                              <button 
+                                onClick={() => handleEditItem(item)}
+                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all text-sm"
+                              >
+                                Edit
+                              </button>
                            </div>
                          ))}
                       </div>

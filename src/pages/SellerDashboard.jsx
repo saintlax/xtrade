@@ -18,6 +18,7 @@ import ItemForm from '../components/ItemForm';
    const [selectedMeeting, setSelectedMeeting] = useState(null);
    const [localMeetings, setLocalMeetings] = useState(MEETINGS);
    const [listings, setListings] = useState([]);
+   const [editingItem, setEditingItem] = useState(null);
 
    // Filter meetings for this seller
    const sellerMeetings = localMeetings.filter(m => m.sellerId === user.id);
@@ -33,8 +34,18 @@ import ItemForm from '../components/ItemForm';
   };
 
   const handleAddListing = (data) => {
-    setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'pending' }]);
+    if (editingItem) {
+      setListings(prev => prev.map(item => item.id === editingItem.id ? { ...data, id: editingItem.id } : item));
+      setEditingItem(null);
+    } else {
+      setListings(prev => [...prev, { ...data, id: Date.now().toString(), status: 'pending' }]);
+    }
     setShowAddForm(false);
+  };
+
+  const handleEditItem = (item) => {
+    setEditingItem(item);
+    setShowAddForm(true);
   };
 
   return (
@@ -56,10 +67,10 @@ import ItemForm from '../components/ItemForm';
                {showBuyerSearch ? 'Back to Dashboard' : 'Search Interested Buyers'}
              </button>
              <button
-               onClick={() => { setShowAddForm(!showAddForm); setShowBuyerSearch(false); }}
+               onClick={() => { setShowAddForm(!showAddForm); setShowBuyerSearch(false); setEditingItem(null); }}
                className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
              >
-               {showAddForm ? 'Back to Dashboard' : (
+               {showAddForm ? 'Back to Listings' : (
                  <>
                    <Plus className="w-5 h-5" />
                    Sell Particular Item
@@ -75,8 +86,8 @@ import ItemForm from '../components/ItemForm';
              animate={{ opacity: 1, y: 0 }}
              className="bg-white rounded-3xl shadow-sm border p-8"
            >
-             <h2 className="text-2xl font-bold mb-8">Create New Listing</h2>
-             <ItemForm onSubmit={handleAddListing} isTemp={true} />
+             <h2 className="text-2xl font-bold mb-8">{editingItem ? 'Edit Listing' : 'Create New Listing'}</h2>
+             <ItemForm onSubmit={handleAddListing} initialData={editingItem} isTemp={true} />
            </motion.div>
          ) : showBuyerSearch ? (
            <motion.div 
@@ -111,8 +122,12 @@ import ItemForm from '../components/ItemForm';
                   <div className="space-y-4">
                     {listings.map(item => (
                       <div key={item.id} className="flex items-center gap-6 p-6 border rounded-2xl hover:border-blue-500 transition-colors group">
-                        <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center">
-                          <Package className="w-8 h-8 text-gray-400" />
+                        <div className="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
+                          {item.images && item.images.length > 0 ? (
+                            <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Package className="w-8 h-8 text-gray-400" />
+                          )}
                         </div>
                         <div className="flex-grow">
                           <h3 className="text-xl font-bold">{item.name}</h3>
@@ -125,7 +140,13 @@ import ItemForm from '../components/ItemForm';
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                           <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                           <button 
+                             onClick={() => handleEditItem(item)}
+                             className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                           >
+                              <Edit className="w-5 h-5" />
+                           </button>
+                           <button className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
                               <Search className="w-5 h-5" />
                            </button>
                         </div>
